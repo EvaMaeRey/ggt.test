@@ -576,7 +576,7 @@ grit_undergrad_data |>
 
 ``` r
 # 7. normal distribution based on null and n
-compute_dist_t <- function (data, scales, value = 3.5, height = NULL, tails = c("none", "two-sided", "both","lower", "upper") )
+compute_dist_t <- function (data, scales, value = 3.5, height = NULL, tails = "none")
 {
   
   tails <- tails[1]
@@ -584,8 +584,8 @@ compute_dist_t <- function (data, scales, value = 3.5, height = NULL, tails = c(
   mean_x <- mean(data$x)
   diff <- mean_x - value
   mirrored <- value - diff
-  upper <- max(mean_x, mirrored)
-  lower <- min(mean_x, mirrored)
+  greater <- max(mean_x, mirrored)
+  less <- min(mean_x, mirrored)
   
   height = height %||% 3*nrow(data)/30
   
@@ -598,15 +598,15 @@ compute_dist_t <- function (data, scales, value = 3.5, height = NULL, tails = c(
     mutate(x = x * (sd(data$x)/sqrt(length(data$x))) + value) |> 
     mutate(y = height*y_density/max(y_density)) %>% 
 
-    mutate(upper_t = x > mean(data$x),
-           lower_t = x < mean(data$x),
-           two_tail = (x > upper) | (x < lower))
+    mutate(greater_t = x > mean(data$x),
+           less_t = x < mean(data$x),
+           two_tail = (x > greater) | (x < less))
   
   out$tails_logical <- F
   out$tails_logical <- if(tails == "none"){FALSE}else{out$tails_logical}
-  out$tails_logical <- if(tails == "upper"){out$upper_t}else{out$tails_logical}
-  out$tails_logical <- if(tails == "lower"){out$upper_t}else{out$tails_logical}
-  out$tails_logical <- if(tails == "two-sided"| tails == "both"){out$two_tail}else{out$tails_logical}
+  out$tails_logical <- if(tails == "greater"){out$greater_t}else{out$tails_logical}
+  out$tails_logical <- if(tails == "less"){out$greater_t}else{out$tails_logical}
+  out$tails_logical <- if(tails == "two.sided"| tails == "both"){out$two_tail}else{out$tails_logical}
 
   out
   
@@ -630,15 +630,15 @@ scale_fill_logical <- function(...){
 #' @export
 geom_tdist_null <- function(value, ..., tails = NULL){
   
-  # aes_upper <- aes(fill = after_stat(upper_tail))
-  # aes_lower <- aes(fill = after_stat(lower_tail))
+  # aes_greater <- aes(fill = after_stat(greater_tail))
+  # aes_less <- aes(fill = after_stat(less_tail))
   # aes_none <- StatIdentity$default_aes
   # aes_both <- aes(fill = after_stat(two_tail))
   # 
   # # if(is.null(tails)d_aes = aes_none
-  # if(tails == "two-sided"){d_aes = aes_both}
-  # if(tails == "upper"){d_aes = aes_upper}
-  # if(tails == "lower"){d_aes = aes_lower}
+  # if(tails == "two.sided"){d_aes = aes_both}
+  # if(tails == "greater"){d_aes = aes_greater}
+  # if(tails == "less"){d_aes = aes_less}
   
   list(
   qlayer(geom = qproto_update(ggplot2::GeomArea, 
@@ -694,7 +694,7 @@ time_elapsed_mean_plot +
 ``` r
 
 grit_du_mean_plot + 
-  geom_tdist_null(value = 3.5, tails = "two-sided")
+  geom_tdist_null(value = 3.5, tails = "two.sided")
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
@@ -702,7 +702,7 @@ grit_du_mean_plot +
 ``` r
 
 grit_du_mean_plot + 
-  geom_tdist_null(value = 3.5, tails = "upper")
+  geom_tdist_null(value = 3.5, tails = "greater")
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-13-3.png)<!-- -->
@@ -723,6 +723,35 @@ grit_du_mean_plot +
 
 ![](README_files/figure-gfm/unnamed-chunk-13-5.png)<!-- -->
 
+``` r
+# grit_du_mean_plot +
+#   stamp_standardized_stat
+t.test(x = chickwts$weight, mu = 275)
+#> 
+#>  One Sample t-test
+#> 
+#> data:  chickwts$weight
+#> t = -1.4775, df = 70, p-value = 0.144
+#> alternative hypothesis: true mean is not equal to 275
+#> 95 percent confidence interval:
+#>  242.8301 279.7896
+#> sample estimates:
+#> mean of x 
+#>  261.3099
+t.test(x = chickwts$weight, mu = 275, alternative = "less" )
+#> 
+#>  One Sample t-test
+#> 
+#> data:  chickwts$weight
+#> t = -1.4775, df = 70, p-value = 0.07201
+#> alternative hypothesis: true mean is less than 275
+#> 95 percent confidence interval:
+#>      -Inf 276.7549
+#> sample estimates:
+#> mean of x 
+#>  261.3099
+```
+
 # t-test equations?
 
 <details>
@@ -742,11 +771,6 @@ stamp_standardized_stat <- function(x = I(.125),
   )
 
 }
-```
-
-``` r
-# grit_du_mean_plot +
-#   stamp_standardized_stat
 ```
 
 </details>

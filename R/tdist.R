@@ -1,5 +1,5 @@
 # 7. normal distribution based on null and n
-compute_dist_t <- function (data, scales, value = 3.5, height = NULL, tails = c("none", "two-sided", "both","lower", "upper") )
+compute_dist_t <- function (data, scales, value = 3.5, height = NULL, tails = "none")
 {
   
   tails <- tails[1]
@@ -7,8 +7,8 @@ compute_dist_t <- function (data, scales, value = 3.5, height = NULL, tails = c(
   mean_x <- mean(data$x)
   diff <- mean_x - value
   mirrored <- value - diff
-  upper <- max(mean_x, mirrored)
-  lower <- min(mean_x, mirrored)
+  greater <- max(mean_x, mirrored)
+  less <- min(mean_x, mirrored)
   
   height = height %||% 3*nrow(data)/30
   
@@ -21,15 +21,15 @@ compute_dist_t <- function (data, scales, value = 3.5, height = NULL, tails = c(
     mutate(x = x * (sd(data$x)/sqrt(length(data$x))) + value) |> 
     mutate(y = height*y_density/max(y_density)) %>% 
 
-    mutate(upper_t = x > mean(data$x),
-           lower_t = x < mean(data$x),
-           two_tail = (x > upper) | (x < lower))
+    mutate(greater_t = x > mean(data$x),
+           less_t = x < mean(data$x),
+           two_tail = (x > greater) | (x < less))
   
   out$tails_logical <- F
   out$tails_logical <- if(tails == "none"){FALSE}else{out$tails_logical}
-  out$tails_logical <- if(tails == "upper"){out$upper_t}else{out$tails_logical}
-  out$tails_logical <- if(tails == "lower"){out$upper_t}else{out$tails_logical}
-  out$tails_logical <- if(tails == "two-sided"| tails == "both"){out$two_tail}else{out$tails_logical}
+  out$tails_logical <- if(tails == "greater"){out$greater_t}else{out$tails_logical}
+  out$tails_logical <- if(tails == "less"){out$greater_t}else{out$tails_logical}
+  out$tails_logical <- if(tails == "two.sided"| tails == "both"){out$two_tail}else{out$tails_logical}
 
   out
   
@@ -53,15 +53,15 @@ scale_fill_logical <- function(...){
 #' @export
 geom_tdist_null <- function(value, ..., tails = NULL){
   
-  # aes_upper <- aes(fill = after_stat(upper_tail))
-  # aes_lower <- aes(fill = after_stat(lower_tail))
+  # aes_greater <- aes(fill = after_stat(greater_tail))
+  # aes_less <- aes(fill = after_stat(less_tail))
   # aes_none <- StatIdentity$default_aes
   # aes_both <- aes(fill = after_stat(two_tail))
   # 
   # # if(is.null(tails)d_aes = aes_none
-  # if(tails == "two-sided"){d_aes = aes_both}
-  # if(tails == "upper"){d_aes = aes_upper}
-  # if(tails == "lower"){d_aes = aes_lower}
+  # if(tails == "two.sided"){d_aes = aes_both}
+  # if(tails == "greater"){d_aes = aes_greater}
+  # if(tails == "less"){d_aes = aes_less}
   
   list(
   qlayer(geom = qproto_update(ggplot2::GeomArea, 
