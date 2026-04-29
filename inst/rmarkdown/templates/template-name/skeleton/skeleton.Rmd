@@ -1,0 +1,86 @@
+---
+title: "Template Title"
+author: "Your Name"
+date: "The Date"
+output: output_format
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Let's explore the 'one-sample t test'
+
+
+```{r}
+library(ggt.test)
+library(tidyverse)
+```
+
+
+# Scenario 1: On average are is peoples' estimate of song-snippet length correct? The true length of the snippet played is 10 seconds 
+
+What is the sample size?
+
+>
+
+What is the mean estimate for the sample?
+
+> 
+
+What is the null?  
+
+>
+
+Does the mean for the sample look consistent with the null?
+
+
+```{r}
+
+
+
+```
+
+
+# Scenario 2: Do non-cadet undergraduate students have a mean of grit scores that are consistent West Point's mean of 3.75
+
+What is the 'n'
+
+>
+
+What is the sample mean?
+
+>
+
+What is the asserted mean (null) $\mu = ?$
+
+>
+
+Does the sample mean for the students, look like the asserted mean (West Point cadets), i.e. can I reject the null hypothesis?
+
+>
+
+
+# Scenario 3: Hours of sleep.
+
+Students are asked to report their hours of sleep from the night previous.  Is there evidence that on average, there sleep differs from the recommended 8 hours? 
+
+How many students are in the sample?
+
+> 22
+
+What is the mean number of hours? (balancing point)
+
+>
+
+What is the null hypothesis? (put it on the plot) 
+
+> 8
+
+Does it look like our campus population on average get 8 hours of sleep, or is what we observe inconsistn with this proposed mean, $\mu = 8$ 
+
+> looks inconsistent with the proposed 8 hrs average.
+
+```{r}
+data_hrs_sleep
+```

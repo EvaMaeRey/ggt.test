@@ -47,18 +47,18 @@ how long the clip played (in seconds).
 
 ``` r
 library(tidyverse)
-time_elapsed_data <- 
+data_time_elapsed <- 
   read_csv("https://www.isi-stats.com/isi/data/chap2/TimeEstimate.txt") |>
   janitor::clean_names()
 
-usethis::use_data(time_elapsed_data, overwrite = T)
+usethis::use_data(data_time_elapsed, overwrite = T)
 ```
 
 </details>
 
 ``` r
 library(ggt.test)
-time_elapsed_data 
+data_time_elapsed 
 #> # A tibble: 48 × 1
 #>    estimate
 #>       <dbl>
@@ -74,7 +74,7 @@ time_elapsed_data
 #> 10       15
 #> # ℹ 38 more rows
 
-time_elapsed_data |> 
+data_time_elapsed |> 
   pull(estimate) |> 
   mean()
 #> [1] 13.70833
@@ -132,7 +132,7 @@ grit_scores <- grit_summaries |>
 usethis::use_data(grit_scores, overwrite = T)
 
 
-grit_undergrad_data <- c(3.18, 2.4, 3.2, 3.16, 3, 3.5, 3.6, 3.4, 3.42, 
+data_grit_undergrad <- c(3.18, 2.4, 3.2, 3.16, 3, 3.5, 3.6, 3.4, 3.42, 
                   2.3, 3.46, 2.9, 3.8, 3.35, 3.9, 3.3, 3.29, 3.24, 2.2, 2.8, 4.6) |>
   tibble(score = _)
 
@@ -140,7 +140,7 @@ grit_undergrad_data <- c(3.18, 2.4, 3.2, 3.16, 3, 3.5, 3.6, 3.4, 3.42,
 usethis::use_data(grit_scores, overwrite = T)
 
   
-usethis::use_data(grit_undergrad_data, overwrite = T)
+usethis::use_data(data_grit_undergrad, overwrite = T)
 
   
 ```
@@ -148,7 +148,7 @@ usethis::use_data(grit_undergrad_data, overwrite = T)
 </details>
 
 ``` r
-grit_undergrad_data
+data_grit_undergrad
 #> # A tibble: 21 × 1
 #>    score
 #>    <dbl>
@@ -165,7 +165,7 @@ grit_undergrad_data
 #> # ℹ 11 more rows
 
 
-grit_undergrad_data |> 
+data_grit_undergrad |> 
   pull(score) |> 
   mean()
 #> [1] 3.238095
@@ -315,7 +315,7 @@ geom_stacks <- function(...){
 </details>
 
 ``` r
-time_elapsed_data |> 
+data_time_elapsed |> 
   ggplot() + 
   aes(x = estimate) + 
   geom_support() + 
@@ -331,7 +331,7 @@ time_elapsed_data |>
 
 time_elapsed_base_plot <- last_plot()
 
-ggplot(grit_undergrad_data) + 
+ggplot(data_grit_undergrad) + 
   aes(score) + 
   geom_rug() + 
   geom_stacks() + 
@@ -522,7 +522,7 @@ data_add_synth <- function(data, var, mean, num_trials = 1){
 ``` r
 
 # estimated time elapsed 13.7; true lapsed time 10
-time_elapsed_data |> 
+data_time_elapsed |> 
   data_add_synth(estimate, mean = 10) |>
   ggplot() + 
   aes(x = synthetic) +
@@ -538,7 +538,7 @@ time_elapsed_data |>
 ``` r
 
 last_plot() + 
-  time_elapsed_data |>
+  data_time_elapsed |>
   data_add_synth(estimate, mean = 10, num_trials = 9)
 ```
 
@@ -547,7 +547,7 @@ last_plot() +
 ``` r
 
 # sample mean 3.23; asserted 3.75
-grit_undergrad_data |> 
+data_grit_undergrad |> 
   data_add_synth(var = score, mean = 3.75) |>
   ggplot() + 
   aes(x = synthetic) +
@@ -571,6 +571,8 @@ grit_undergrad_data |>
 <https://seismo.berkeley.edu/~kirchner/eps_120/Odds_n_ends/Students_original_paper.pdf>
 
 ![](images/clipboard-3421848216.png)
+
+![](images/clipboard-514811164.png)
 
 <details>
 
