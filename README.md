@@ -23,8 +23,12 @@ ggt.test
 
 ## {ggt.test} is a micro package to examine the logic of the t.test.
 
+![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
 If we discuss each of the snapshot points, we could write something like
 this:
+
+![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 ------------------------------------------------------------------------
 
@@ -53,6 +57,7 @@ usethis::use_data(time_elapsed_data, overwrite = T)
 </details>
 
 ``` r
+library(ggt.test)
 time_elapsed_data 
 #> # A tibble: 48 × 1
 #>    estimate
@@ -96,7 +101,12 @@ Mean grit score 3.5 for spelling Bee finalists
 
 <img src="images/clipboard-2630380012.png" width="454" />
 
-Class of 2010 West Point Cadet Grit score mean 3.75
+Class of 2010 West Point Cadet Grit score mean: 3.75
+
+M is the mean, N is the number of respondants, SD is the Standard
+deviation for the responses:
+
+![](images/clipboard-585571676.png)
 
 <details>
 
@@ -579,13 +589,15 @@ compute_dist_t <- function (data, scales, value = 3.5, height = NULL, tails = c(
   
   height = height %||% 3*nrow(data)/30
   
-  out <- seq(-5, 5, 0.01) %>% 
+  out <- seq(-5, 5, 0.01) %>% # 
+    # x initially centered at zero
     tibble(x = .) %>% 
-    mutate(y_density = dt(x, df = length(data$x) - 
-        1)) %>%
+    # use the t distribution, centered at zero, with 1 degree of freedom
+    mutate(y_density = dt(x, df = length(data$x) - 1)) %>%
+    # recalculate x so at centered at 'value' and 
+    mutate(x = x * (sd(data$x)/sqrt(length(data$x))) + value) |> 
     mutate(y = height*y_density/max(y_density)) %>% 
-    mutate(x = x * (sd(data$x)/sqrt(length(data$x))) + 
-        value) |> 
+
     mutate(upper_t = x > mean(data$x),
            lower_t = x < mean(data$x),
            two_tail = (x > upper) | (x < lower))
@@ -597,6 +609,7 @@ compute_dist_t <- function (data, scales, value = 3.5, height = NULL, tails = c(
   out$tails_logical <- if(tails == "two-sided"| tails == "both"){out$two_tail}else{out$tails_logical}
 
   out
+  
   
 }
 
@@ -716,19 +729,24 @@ grit_du_mean_plot +
 
 ``` r
 #' @export
-stamp_eq_norm_prop <- function(x = I(.125),
+stamp_standardized_stat <- function(x = I(.125),
     y = I(.8), size = 3.5){
   
   annotate(
     "text",
     x = x,
     y = y,
-    label = latex2exp::TeX("s = \\sqrt{\\frac{p*(1-p)}{n}}", output = "character"),
+    label = latex2exp::TeX("s = \\sqrt{\\frac{\\bar{x}*(\\mu_0)}{n}}", output = "character"),
     parse = TRUE,
     size = size
   )
 
 }
+```
+
+``` r
+# grit_du_mean_plot +
+#   stamp_standardized_stat
 ```
 
 </details>

@@ -12,13 +12,15 @@ compute_dist_t <- function (data, scales, value = 3.5, height = NULL, tails = c(
   
   height = height %||% 3*nrow(data)/30
   
-  out <- seq(-5, 5, 0.01) %>% 
+  out <- seq(-5, 5, 0.01) %>% # 
+    # x initially centered at zero
     tibble(x = .) %>% 
-    mutate(y_density = dt(x, df = length(data$x) - 
-        1)) %>%
+    # use the t distribution, centered at zero, with 1 degree of freedom
+    mutate(y_density = dt(x, df = length(data$x) - 1)) %>%
+    # recalculate x so at centered at 'value' and 
+    mutate(x = x * (sd(data$x)/sqrt(length(data$x))) + value) |> 
     mutate(y = height*y_density/max(y_density)) %>% 
-    mutate(x = x * (sd(data$x)/sqrt(length(data$x))) + 
-        value) |> 
+
     mutate(upper_t = x > mean(data$x),
            lower_t = x < mean(data$x),
            two_tail = (x > upper) | (x < lower))
@@ -30,6 +32,7 @@ compute_dist_t <- function (data, scales, value = 3.5, height = NULL, tails = c(
   out$tails_logical <- if(tails == "two-sided"| tails == "both"){out$two_tail}else{out$tails_logical}
 
   out
+  
   
 }
 
