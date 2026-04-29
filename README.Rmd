@@ -252,10 +252,9 @@ qproto_update <- function (`_inherit`, default_aes_update = NULL, ...)
 
 Now let's see the compute...
 
-```{r compute_for_means_story, echo = T, message=F, warning=F}
-library(tidyverse)
+```{r viz_raw, echo = T, message=F, warning=F}
 
-# 3. layer add x span
+
 compute_balance <- function(data, scales){
   
   data %>% 
@@ -267,7 +266,7 @@ compute_balance <- function(data, scales){
   
 }
 
-
+#' @export
 geom_support <- function(...){
   
   qlayer(geom = GeomSegment, 
@@ -285,7 +284,7 @@ compute_stacks <- function(data, scales){
   
 }
 
-
+#' @export
 geom_stacks <- function(...){
   
   # qlayer(geom = GeomBar |> qproto_update(aes(color = from_theme("ink"))),
@@ -331,8 +330,8 @@ grit_du_base_plot <- last_plot()
 
 <details>
 
-```{r}
-# 4. layer add balancing point 
+```{r viz_means}
+
 compute_xmean_at_y0 <- function(data, scales){
   
   data %>% 
@@ -473,7 +472,8 @@ grit_du_mean_plot <- last_plot()
 
 <details>
 
-```{r}
+```{r interlude}
+#' @export
 data_add_synth <- function(data, var, mean, num_trials = 1){
   
   observed <- data |> pull({{var}})
@@ -536,7 +536,7 @@ grit_undergrad_data |>
 
 <details>
 
-```{r}
+```{r tdist}
 # 7. normal distribution based on null and n
 compute_dist_t <- function (data, scales, value = 3.5, height = NULL, tails = c("none", "two-sided", "both","lower", "upper") )
 {
@@ -692,10 +692,12 @@ stamp_eq_norm_prop <- function(x = I(.125),
 # Minimal Packaging
 
 ```{r, eval = F}
+# knitrExtra::chunk_names_get()
 knitrExtra::chunk_to_dir("statexpress")
-knitrExtra::chunk_to_dir("compute_for_means_story")
-knitrExtra::chunk_to_dir("prop_poem_functions")
-knitrExtra::chunk_to_dir("stamp_eq_norm_prop")
+knitrExtra::chunk_to_dir("viz_raw")
+knitrExtra::chunk_to_dir("viz_means")
+knitrExtra::chunk_to_dir("interlude")
+knitrExtra::chunk_to_dir("tdist")
 ```
 
 ```{r, eval = F}

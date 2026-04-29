@@ -255,9 +255,8 @@ qproto_update <- function (`_inherit`, default_aes_update = NULL, ...)
 Now let’s see the compute…
 
 ``` r
-library(tidyverse)
 
-# 3. layer add x span
+
 compute_balance <- function(data, scales){
   
   data %>% 
@@ -269,7 +268,7 @@ compute_balance <- function(data, scales){
   
 }
 
-
+#' @export
 geom_support <- function(...){
   
   qlayer(geom = GeomSegment, 
@@ -287,7 +286,7 @@ compute_stacks <- function(data, scales){
   
 }
 
-
+#' @export
 geom_stacks <- function(...){
   
   # qlayer(geom = GeomBar |> qproto_update(aes(color = from_theme("ink"))),
@@ -342,7 +341,7 @@ grit_du_base_plot <- last_plot()
 <details>
 
 ``` r
-# 4. layer add balancing point 
+
 compute_xmean_at_y0 <- function(data, scales){
   
   data %>% 
@@ -466,7 +465,7 @@ time_elapsed_base_plot +
   stamp_mean_label(10)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ``` r
 
@@ -479,7 +478,7 @@ grit_du_base_plot +
   stamp_mean_label(3.75)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
 
 ``` r
 
@@ -492,6 +491,7 @@ grit_du_mean_plot <- last_plot()
 <details>
 
 ``` r
+#' @export
 data_add_synth <- function(data, var, mean, num_trials = 1){
   
   observed <- data |> pull({{var}})
@@ -523,7 +523,7 @@ time_elapsed_data |>
   facet_wrap(~.trial)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 ``` r
 
@@ -532,7 +532,7 @@ last_plot() +
   data_add_synth(estimate, mean = 10, num_trials = 9)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
 
 ``` r
 
@@ -548,7 +548,7 @@ grit_undergrad_data |>
   facet_wrap(~.trial)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-3.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-12-3.png)<!-- -->
 
 # Step 3. Collections of hypothetical means under the ‘null’, and where does observed mean fit in…
 
@@ -676,7 +676,7 @@ time_elapsed_mean_plot +
   geom_tdist_null(value = 12)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 
@@ -684,7 +684,7 @@ grit_du_mean_plot +
   geom_tdist_null(value = 3.5, tails = "two-sided")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-16-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
 
 ``` r
 
@@ -692,7 +692,7 @@ grit_du_mean_plot +
   geom_tdist_null(value = 3.5, tails = "upper")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-16-3.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-13-3.png)<!-- -->
 
 ``` r
 
@@ -700,7 +700,7 @@ grit_du_mean_plot +
   geom_tdist_null(value = 3.5, tails = "none")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-16-4.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-13-4.png)<!-- -->
 
 ``` r
 
@@ -708,7 +708,7 @@ grit_du_mean_plot +
   geom_tdist_null(value = 3.5, tails = "both")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-16-5.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-13-5.png)<!-- -->
 
 # t-test equations?
 
@@ -738,10 +738,12 @@ stamp_eq_norm_prop <- function(x = I(.125),
 # Minimal Packaging
 
 ``` r
+# knitrExtra::chunk_names_get()
 knitrExtra::chunk_to_dir("statexpress")
-knitrExtra::chunk_to_dir("compute_for_means_story")
-knitrExtra::chunk_to_dir("prop_poem_functions")
-knitrExtra::chunk_to_dir("stamp_eq_norm_prop")
+knitrExtra::chunk_to_dir("viz_raw")
+knitrExtra::chunk_to_dir("viz_means")
+knitrExtra::chunk_to_dir("interlude")
+knitrExtra::chunk_to_dir("tdist")
 ```
 
 ``` r
