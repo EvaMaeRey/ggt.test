@@ -55,7 +55,7 @@ geom_mean_label <- function(...){
 
 
 # 6. Add 'point' for asserted balancing point (null)
-compute_panel_prop_asserted <- function(data, scales, value = 0){
+compute_panel_mean_asserted <- function(data, scales, value = 0){
   
   # stamp type layer - so ignore input data
   data.frame(y = 0, 
@@ -74,14 +74,14 @@ stamp_mean <- function(value, ...){
   qlayer(geom = qproto_update(ggplot2::GeomText, 
                               ggplot2::aes(size = from_theme(pointsize*4),
                                            vjust = 1)),
-         stat = qstat_panel(compute_panel_prop_asserted), inherit.aes = F, value = value,
+         stat = qstat_panel(compute_panel_mean_asserted), inherit.aes = F, value = value,
          ...),
     ## vline
     qlayer(geom = GeomSegment |>
              qproto_update(default_aes_update =
                              aes(linetype = "dashed",
                                  vjust = 1)),
-           stat = qstat_panel(compute_panel_prop_asserted), inherit.aes = F, value = value, ...
+           stat = qstat_panel(compute_panel_mean_asserted), inherit.aes = F, value = value, ...
            )
   )
   
@@ -89,7 +89,7 @@ stamp_mean <- function(value, ...){
 
 
 # 6. Add label for asserted balancing point (null)
-compute_panel_prop_asserted_label <- function(data, scales, value = 0){
+compute_panel_mean_asserted_label <- function(data, scales, value = 0){
   
   # stamp type layer - so ignore input data
   data.frame(y = 0, 
@@ -106,7 +106,7 @@ stamp_mean_label <- function(value, ...){
                               ggplot2::aes(fill = ggplot2::from_theme(colour %||% paper), 
                                   label.size = NA, vjust = 0
                                   )),
-         stat = qstat_panel(compute_panel_prop_asserted_label), 
+         stat = qstat_panel(compute_panel_mean_asserted_label), 
          inherit.aes = F, value = value,
          ...)
   }

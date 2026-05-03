@@ -17,6 +17,14 @@ ggt.test
   does observed mean fit
   in…](#step-3-collections-of-hypothetical-means-under-the-null-and-where-does-observed-mean-fit-in)
 - [t-test equations?](#t-test-equations)
+  - [Part II. two sample t.test: Difference in
+    means](#part-ii-two-sample-ttest-difference-in-means)
+    - [Scenario \#4 & \#5: changes in old faithful guyser activity and
+      difference in hair cut
+      prices…](#scenario-4--5-changes-in-old-faithful-guyser-activity-and-difference-in-hair-cut-prices)
+  - [Step 1: visualize raw data](#step-1-visualize-raw-data)
+- [Step 2. Calculate means](#step-2-calculate-means)
+  - [Interlude - shuffling](#interlude---shuffling)
 - [Minimal Packaging](#minimal-packaging)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -245,6 +253,13 @@ qstat_panel <- function (compute_panel, ...)
 }
 
 
+qstat_layer <- function (compute_layer, ...) 
+{
+    ggplot2::ggproto(NULL, Stat, compute_layer = compute_layer, 
+        ...)
+}
+
+
 proto_update <- function (`_class`, `_inherit`, default_aes_update = NULL, ...) 
 {
     if (!is.null(default_aes_update)) {
@@ -408,7 +423,7 @@ geom_mean_label <- function(...){
 
 
 # 6. Add 'point' for asserted balancing point (null)
-compute_panel_prop_asserted <- function(data, scales, value = 0){
+compute_panel_mean_asserted <- function(data, scales, value = 0){
   
   # stamp type layer - so ignore input data
   data.frame(y = 0, 
@@ -427,14 +442,14 @@ stamp_mean <- function(value, ...){
   qlayer(geom = qproto_update(ggplot2::GeomText, 
                               ggplot2::aes(size = from_theme(pointsize*4),
                                            vjust = 1)),
-         stat = qstat_panel(compute_panel_prop_asserted), inherit.aes = F, value = value,
+         stat = qstat_panel(compute_panel_mean_asserted), inherit.aes = F, value = value,
          ...),
     ## vline
     qlayer(geom = GeomSegment |>
              qproto_update(default_aes_update =
                              aes(linetype = "dashed",
                                  vjust = 1)),
-           stat = qstat_panel(compute_panel_prop_asserted), inherit.aes = F, value = value, ...
+           stat = qstat_panel(compute_panel_mean_asserted), inherit.aes = F, value = value, ...
            )
   )
   
@@ -442,7 +457,7 @@ stamp_mean <- function(value, ...){
 
 
 # 6. Add label for asserted balancing point (null)
-compute_panel_prop_asserted_label <- function(data, scales, value = 0){
+compute_panel_mean_asserted_label <- function(data, scales, value = 0){
   
   # stamp type layer - so ignore input data
   data.frame(y = 0, 
@@ -459,7 +474,7 @@ stamp_mean_label <- function(value, ...){
                               ggplot2::aes(fill = ggplot2::from_theme(colour %||% paper), 
                                   label.size = NA, vjust = 0
                                   )),
-         stat = qstat_panel(compute_panel_prop_asserted_label), 
+         stat = qstat_panel(compute_panel_mean_asserted_label), 
          inherit.aes = F, value = value,
          ...)
   }
@@ -777,6 +792,190 @@ stamp_standardized_stat <- function(x = I(.125),
 
 </details>
 
+## Part II. two sample t.test: Difference in means
+
+### Scenario \#4 & \#5: changes in old faithful guyser activity and difference in hair cut prices…
+
+<details>
+
+``` r
+data_old_faithful <- read.delim("https://www.isi-stats.com/isi/data/chap6/OldFaithful.txt")
+
+usethis::use_data(data_old_faithful, overwrite = T)
+
+
+data_haircuts <- read.delim("https://www.isi-stats.com/isi/data/chap6/Haircuts.txt") |> janitor::clean_names() |> rename(price = cost) 
+
+usethis::use_data(data_haircuts, overwrite = T)
+```
+
+</details>
+
+``` r
+head(data_haircuts)
+#>      sex price
+#> 1 Female    50
+#> 2   Male    20
+#> 3 Female    60
+#> 4   Male    75
+#> 5 Female   150
+#> 6   Male    23
+
+head(data_old_faithful)
+#>   year time
+#> 1 1978   78
+#> 2 1978   74
+#> 3 1978   68
+#> 4 1978   76
+#> 5 1978   80
+#> 6 1978   84
+```
+
+## Step 1: visualize raw data
+
+<details>
+
+``` r
+facet_align <- function(var, ...){
+
+  facet_wrap(facets = vars({{var}}), ncol = 1,  ...)
+  
+}
+```
+
+</details>
+
+``` r
+data_haircuts |>
+  ggplot() + 
+  aes(x = price) + 
+  geom_support() + 
+  geom_rug() + 
+  geom_stacks()+
+  geom_mean() + 
+  geom_mean_label() + 
+  facet_align(sex)
+```
+
+![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+
+``` r
+
+haircuts_means_plot <- last_plot()
+```
+
+# Step 2. Calculate means
+
+``` r
+compute_layer_diff_mean_segment <- function(data, ...){
+  
+  data |> 
+    summarise(mean = mean(x),
+              .by = PANEL) |> 
+    select(mean, PANEL) |>
+    pivot_wider(values_from = mean, names_from = PANEL, names_prefix = "V") |>
+    rename(x = V1, xend = V2) |> 
+    mutate(y = 0, yend = 0) |> 
+    crossing(data.frame(PANEL = 1:2))
+  
+}
+
+
+compute_layer_diff_mean_segment_label <- function(data, ...){
+  
+  data |> 
+    summarise(mean = mean(x),
+              .by = PANEL) |> 
+    select(mean, PANEL) |>
+    pivot_wider(values_from = mean, names_from = PANEL, names_prefix = "V") |>
+    rename(x = V1, xend = V2) |> 
+    mutate(y = 0, yend = 0) |> 
+    crossing(data.frame(PANEL = 1:2)) |> 
+    mutate(difference = c((x - xend)) |> round(2)) |>
+    mutate(label = paste0("Difference: \n", difference)) |> 
+    mutate(x = I(c(.2, -5)), y = I(.8))
+  
+}
+
+geom_mean_diff <- function(...){
+
+  qlayer(stat = compute_layer_diff_mean_segment |> qstat_layer(), 
+         geom = GeomSegment |> 
+           qproto_update(aes(color = from_theme(accent),
+                   linewidth = from_theme(linewidth*3))), 
+         ...)
+  
+}
+
+geom_mean_diff_label <- function(...){
+  
+    qlayer(
+      geom = GeomLabel |> qproto_update(aes(color = from_theme(colour %||% accent),
+                                            fill  = from_theme(colour %||% paper))),
+      stat = compute_layer_diff_mean_segment_label |> qstat_layer(),
+      ...
+      ) 
+  
+}
+```
+
+</details>
+
+``` r
+haircuts_means_plot + 
+  geom_mean_diff() + 
+  geom_mean_diff_label()
+```
+
+![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+
+## Interlude - shuffling
+
+<details>
+
+``` r
+data_shuffle_var <- function(data, var){
+  
+  data |> 
+    mutate(shuffled = sample({{var}}, replace = F))
+  
+}
+```
+
+</details>
+
+``` r
+set.seed(1234)
+data_haircuts |> 
+  data_shuffle_var(var = price) |>  # shuffle - no association between vars
+  ggplot() + 
+  aes(x = shuffled) + 
+  geom_stacks() +
+  geom_mean() + 
+  geom_mean_diff() +
+  facet_align(sex) + 
+  geom_mean_diff() + 
+  geom_mean_diff_label()
+
+last_plot() + (data_haircuts |> data_shuffle_var(var = price))
+
+last_plot() + (data_haircuts |> data_shuffle_var(var = price))
+
+last_plot() + (data_haircuts |> data_shuffle_var(var = price))
+
+last_plot() + (data_haircuts |> data_shuffle_var(var = price))
+
+last_plot() + (data_haircuts |> data_shuffle_var(var = price))
+
+last_plot() + (data_haircuts |> data_shuffle_var(var = price))
+
+last_plot() + (data_haircuts |> data_shuffle_var(var = price))
+
+last_plot() + (data_haircuts |> data_shuffle_var(var = price))
+```
+
+<img src="README_files/figure-gfm/unnamed-chunk-19-1.png" width="33%" /><img src="README_files/figure-gfm/unnamed-chunk-19-2.png" width="33%" /><img src="README_files/figure-gfm/unnamed-chunk-19-3.png" width="33%" /><img src="README_files/figure-gfm/unnamed-chunk-19-4.png" width="33%" /><img src="README_files/figure-gfm/unnamed-chunk-19-5.png" width="33%" /><img src="README_files/figure-gfm/unnamed-chunk-19-6.png" width="33%" /><img src="README_files/figure-gfm/unnamed-chunk-19-7.png" width="33%" /><img src="README_files/figure-gfm/unnamed-chunk-19-8.png" width="33%" /><img src="README_files/figure-gfm/unnamed-chunk-19-9.png" width="33%" />
+
 ------------------------------------------------------------------------
 
 # Minimal Packaging
@@ -788,6 +987,9 @@ knitrExtra::chunk_to_dir("viz_raw")
 knitrExtra::chunk_to_dir("viz_means")
 knitrExtra::chunk_to_dir("interlude")
 knitrExtra::chunk_to_dir("tdist")
+knitrExtra::chunk_to_dir("facet_align")
+knitrExtra::chunk_to_dir("geom_mean_diff")
+knitrExtra::chunk_to_dir("data_shuffle_var")
 ```
 
 ``` r

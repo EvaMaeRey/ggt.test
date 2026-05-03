@@ -21,6 +21,13 @@ qstat_panel <- function (compute_panel, ...)
 }
 
 
+qstat_layer <- function (compute_layer, ...) 
+{
+    ggplot2::ggproto(NULL, Stat, compute_layer = compute_layer, 
+        ...)
+}
+
+
 proto_update <- function (`_class`, `_inherit`, default_aes_update = NULL, ...) 
 {
     if (!is.null(default_aes_update)) {
